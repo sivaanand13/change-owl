@@ -1,1 +1,7 @@
-/README.md
+docs/research/*
+!docs/research/.gitkeep
+
+*.env
+.idea
+
+.DS_Store

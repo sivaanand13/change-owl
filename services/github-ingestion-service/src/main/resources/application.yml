@@ -1,0 +1,36 @@
+server:
+  port: 8081
+
+spring:
+  application:
+      name: github-ingestion-service
+
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/changeowl}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
+    driver-class-name: org.postgresql.Driver
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.add.type.headers: false
+        retry.backoff.ms: 1000
+        delivery.timeout.ms: 30000
+      retries: 3
+      acks: all
+
+
+github:
+  token: ${GITHUB_TOKEN}
+  start-since: 2026-04-01T00:00:00Z
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,metrics,prometheus
