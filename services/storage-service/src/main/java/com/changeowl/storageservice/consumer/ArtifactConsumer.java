@@ -29,7 +29,8 @@ public class ArtifactConsumer {
                 storageMetrics.incrementStorageOperation("save_artifact", "success", event.getType());
         } catch (Exception e) {
             log.error("Error processing artifact event source={}, type={}, externalId={}, error={}", event.getSource(), event.getType(), event.getExternalId(), e.getMessage(), e);
-        }finally {
+            throw e;
+        } finally {
             storageMetrics.stopTimer(timer, "db_write");
         }
     }

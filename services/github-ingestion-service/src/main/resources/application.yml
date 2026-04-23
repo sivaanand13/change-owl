@@ -6,9 +6,9 @@ spring:
       name: github-ingestion-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/changeowl
-    username: user
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/changeowl}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
 
   kafka:
@@ -27,6 +27,7 @@ spring:
 
 github:
   token: ${GITHUB_TOKEN}
+  start-since: 2026-04-01T00:00:00Z
 
 management:
   endpoints:

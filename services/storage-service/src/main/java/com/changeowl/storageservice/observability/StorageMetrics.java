@@ -18,6 +18,7 @@ public class StorageMetrics {
                 .tag("step", step)
                 .tag("status", status)
                 .tag("source", source)
+                .description("Count of artifacts persisted in storage")
                 .register(meterRegistry)
                 .increment();
     }
@@ -26,6 +27,16 @@ public class StorageMetrics {
         Counter.builder("storage.artifacts.retry")
                 .tag("type", type)
                 .tag("attempt", String.valueOf(attempt))
+                .register(meterRegistry)
+                .increment();
+    }
+
+    public void incrementStorageEvent(String step, String type, String status) {
+        Counter.builder("storage.kafka.publish.total")
+                .tag("step", step)
+                .tag("type", type)
+                .tag("status", status)
+                .description("Count of canonical events published to Kafka")
                 .register(meterRegistry)
                 .increment();
     }

@@ -42,10 +42,7 @@ services:
     container_name: changeowl-db
     ports:
       - "5432:5432"
-    environment:
-      - POSTGRES_DB=changeowl
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=password
+    env_file: ../.env
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
@@ -54,6 +51,27 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+  github-ingestion-service:
+    build:
+      context: ..
+      dockerfile: services/github-ingestion-service/Dockerfile
+    env_file: ../.env
+    ports:
+      - "8080:8080"
+    depends_on:
+      - postgres
+      - kafka
+
+  storage-service:
+    build:
+      context: ..
+      dockerfile: services/storage-service/Dockerfile
+    env_file: ../.env
+    ports:
+      - "8081:8081"
+    depends_on:
+      - postgres
+      - kafka
 
 volumes:
   postgres_data:

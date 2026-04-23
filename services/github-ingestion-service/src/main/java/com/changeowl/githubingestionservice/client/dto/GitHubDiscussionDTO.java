@@ -3,7 +3,7 @@ package com.changeowl.githubingestionservice.client.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 
-import java.util.List;
+import java.time.Instant;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -12,8 +12,8 @@ public class GitHubDiscussionDTO {
     private String title;
     private String bodyText;
     private String url;
-    private String createdAt;
-    private String updatedAt;
+    private Instant createdAt;
+    private Instant updatedAt;
     private Author author;
     private String authorAssociation;
 

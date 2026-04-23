@@ -3,6 +3,7 @@ package com.changeowl.githubingestionservice.client;
 import com.changeowl.githubingestionservice.client.dto.GitHubDiscussionDTO;
 import com.changeowl.githubingestionservice.client.dto.GitHubPullRequestDTO;
 import com.changeowl.githubingestionservice.observability.IngestionMetrics;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -14,7 +15,6 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -43,32 +43,48 @@ public class GitHubClient {
             HttpHeaders headers = new HttpHeaders();
             headers.setBearerAuth(token);
             headers.set("Accept", "application/vnd.github+json");
+            headers.set("X-GitHub-Api-Version", "2026-03-10");
+
             HttpEntity<Void> entity = new HttpEntity<>(headers);
 
-            String url = String.format("https://api.github.com/repos/%s/%s/pulls?state=all&sort=updated&direction=desc&since=%s",
-                    owner, repo, lastSyncedAt.toString());
+            String gitUrlTemplate = "https://api.github.com/repos/%s/%s/pulls?state=all&sort=updated&direction=desc&per_page=100&page=%d";
 
+            int page = 1;
 
-            ResponseEntity<String> response =
-                    restTemplate.exchange(
-                            url,
-                            HttpMethod.GET,
-                            entity,
-                            String.class
-                    );
+            while (true) {
+                log.info("Fetching pull requests for {}/{} - page {}", owner, repo, page);
+                String url = String.format(gitUrlTemplate, owner, repo, page);
+                ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
+                updateRateLimitFromHeaders(response.getHeaders());
 
-            try {
                 JsonNode root = objectMapper.readTree(response.getBody());
-                for (JsonNode prNode : root) {
-                    GitHubPullRequestDTO pr = objectMapper.treeToValue(prNode, GitHubPullRequestDTO.class);
-                    pr.setRawJson(prNode.toString());
+
+                if (root.isEmpty()) {
+                    break;
+                }
+
+                boolean stop = false;
+                for (JsonNode node : root) {
+                    GitHubPullRequestDTO pr = objectMapper.treeToValue(node, GitHubPullRequestDTO.class);
+
+                    if (pr.getUpdatedAt().isBefore(lastSyncedAt) || pr.getUpdatedAt().equals(lastSyncedAt)) {
+                        stop = true;
+                        break;
+                    }
+
+                    pr.setRawJson(node.toString());
                     pullRequests.add(pr);
                 }
-                return pullRequests;
-            } catch (Exception e) {
-                log.error("Critical failure: GitHub API returned unparseable root JSON for {}/{}", owner, repo, e);
+                log.info("Fetched {} pull requests in page {} for {}/{}", pullRequests.size(), page, owner, repo);
+
+                if (stop) {
+                    break;
+                }
+                page++;
             }
+            log.info("Fetched {} pull requests for {}/{}", pullRequests.size(), owner, repo);
             return pullRequests;
+
         } catch(Exception e) {
             log.error("Critical failure: GitHub API request failed for {}/{}", owner, repo, e);
             return pullRequests;
@@ -77,76 +93,97 @@ public class GitHubClient {
         }
     }
 
-    public List<GitHubDiscussionDTO> fetchDiscussions(String owner, String repo, Instant lastSyncedAt) {
+    private final String graphqlquery = """
+        query($owner: String!, $name: String!, $cursor: String) {
+          repository(owner: $owner, name: $name) {
+            discussions(first: 100, after: $cursor, orderBy: {field: UPDATED_AT, direction: DESC}) {
+              nodes {
+                id
+                title
+                bodyText
+                url
+                createdAt
+                updatedAt
+                author { login }
+                category { name }
+                isAnswered
+              }
+              pageInfo {
+                hasNextPage
+                endCursor
+              }
+            }
+          }
+        }
+        """;
+
+    public List<GitHubDiscussionDTO> fetchDiscussions(String owner, String repo, Instant lastSyncedAt) throws JsonProcessingException {
         var sample = metrics.startIngestionTimer();
         List<GitHubDiscussionDTO> discussions = new ArrayList<>();
 
-        try {
+        String cursor = null;
+        boolean stop = false;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setBearerAuth(token);
+        headers.setContentType(MediaType.APPLICATION_JSON);
+
+        while (!stop) {
+            log.info("Fetching discussions for {}/{} - cursor {}", owner, repo, cursor);
             String githubGraphqlUrl = "https://api.github.com/graphql";
-            String graphqlquery = """
-                    query($owner: String!, $name: String!) {
-                      repository(owner: $owner, name: $name) {
-                        discussions(first: 20, orderBy: {field: CREATED_AT, direction: DESC}) {
-                          nodes {
-                            updatedAt
-                            id
-                            title
-                            bodyText
-                            url
-                            createdAt
-                            author { login }
-                            authorAssociation
-                            category { name }
-                            isAnswered
-                            answer {
-                                bodyText
-                                author { login }
-                            }
-                          }
-                        }
-                      }
-                    }
-                    """;
-            Map<String, Object> variables = Map.of("owner", owner, "name", repo);
+
+            Map<String, Object> variables = cursor == null
+                        ? Map.of("owner", owner, "name", repo)
+                        : Map.of("owner", owner, "name", repo, "cursor", cursor);
             Map<String, Object> requestBody = Map.of("query", graphqlquery, "variables", variables);
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setBearerAuth(token);
-            headers.setContentType(MediaType.APPLICATION_JSON);
+            ResponseEntity<String> response = restTemplate.postForEntity(
+                    githubGraphqlUrl,
+                    new HttpEntity<>(requestBody, headers),
+                    String.class
+            );
+            updateRateLimitFromHeaders(response.getHeaders());
+            JsonNode root = objectMapper.readTree(response.getBody());
 
-            try {
-                ResponseEntity<String> response = restTemplate.postForEntity(githubGraphqlUrl, new HttpEntity<>(requestBody, headers), String.class);
+            JsonNode nodes = root
+                    .path("data")
+                    .path("repository")
+                    .path("discussions")
+                    .path("nodes");
 
-                JsonNode root = objectMapper.readTree(response.getBody());
+            JsonNode pageInfo = root
+                    .path("data")
+                    .path("repository")
+                    .path("discussions")
+                    .path("pageInfo");
 
-                if (root.has("errors")) {
-                    log.error("GitHub GraphQL API returned errors for {}/{}: {}", owner, repo, root.get("errors").toString());
-                    return List.of();
-                }
-
-                JsonNode nodes = root.path("data").path("repository").path("discussions").path("nodes");
-
-                for (JsonNode node : nodes) {
-                    try {
-                        GitHubDiscussionDTO dto = objectMapper.treeToValue(node, GitHubDiscussionDTO.class);
-                        dto.setRawJson(node.toString());
-                        discussions.add(dto);
-                    } catch (Exception e) {
-                        log.warn("Skipping discussion node due to parsing error: {}", e.getMessage());
-                    }
-                }
-                log.info("Fetched {} discussions for {}/{}", discussions.size(), owner, repo);
-                return discussions;
-            } catch (Exception e) {
-                log.error("Critical failure: GitHub API returned unparseable JSON for {}/{}", owner, repo, e);
-                return discussions;
+            if (nodes.isEmpty()) {
+                break;
             }
-        } catch (Exception e) {
-            log.error("Critical failure: GitHub API request failed for {}/{}", owner, repo, e);
-            return discussions;
-        } finally {
-            metrics.stopIngestionTimer(sample, "fetch_discussions");
+
+            for (JsonNode node : nodes) {
+                GitHubDiscussionDTO discussionDTO = objectMapper.treeToValue(node, GitHubDiscussionDTO.class);
+                Instant updatedAt = discussionDTO.getUpdatedAt();
+
+                if (updatedAt.isBefore(lastSyncedAt) || updatedAt.equals(lastSyncedAt)) {
+                    stop = true;
+                    break;
+                }
+
+                discussionDTO.setRawJson(node.toString());
+                discussions.add(discussionDTO);
+            }
+
+            JsonNode endCursorNode = pageInfo.get("endCursor");
+            cursor = endCursorNode != null? endCursorNode.asText() : null;
+
+            if (!pageInfo.get("hasNextPage").asBoolean()) {
+                break;
+            }
+            log.info("Fetched {} discussions for {}/{} - cursor {}", discussions.size(), owner, repo, cursor);
         }
+        metrics.stopIngestionTimer(sample, "fetch_discussions");
+        return discussions;
     }
 
     private  void updateRateLimitFromHeaders(HttpHeaders headers) {

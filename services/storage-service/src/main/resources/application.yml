@@ -2,9 +2,9 @@ spring:
   application:
     name: storage-service
   datasource:
-    url: jdbc:postgresql://localhost:5432/changeowl
-    username: user
-    password: password
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/changeowl}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:password}
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
@@ -14,7 +14,7 @@ spring:
       hibernate:
         format_sql: true
   kafka:
-    bootstrap-servers: localhost:9092
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
       group-id: storage-service-group
       auto-offset-reset: earliest
@@ -23,6 +23,9 @@ spring:
       properties:
         spring.json.trusted.packages: "com.changeowl.*"
         spring.json.value.default.type: com.changeowl.changeowlshared.model.ArtifactEvent
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
 management:
   endpoints:
     web:

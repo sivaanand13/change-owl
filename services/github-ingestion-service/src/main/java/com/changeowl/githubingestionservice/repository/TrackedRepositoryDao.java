@@ -1,7 +1,7 @@
 package com.changeowl.githubingestionservice.repository;
 
 
-import lombok.RequiredArgsConstructor;
+
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
@@ -23,8 +23,7 @@ public class TrackedRepositoryDao {
         return jdbcTemplate.query(sql, (rs, rowNum) -> new RepoSyncDetails(
                 rs.getString("owner"),
                 rs.getString("name"),
-                rs.getTimestamp("last_synced_at") != null ?
-                        rs.getTimestamp("last_synced_at").toInstant() : Instant.EPOCH
+                rs.getTimestamp("last_synced_at") != null ? rs.getTimestamp("last_synced_at").toInstant() : null
         ));
     }
 

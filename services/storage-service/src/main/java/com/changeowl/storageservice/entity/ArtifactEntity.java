@@ -1,12 +1,12 @@
 package com.changeowl.storageservice.entity;
 
+import com.changeowl.changeowlshared.model.ArtifactEvent;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import org.hibernate.annotations.JdbcType;
-import org.hibernate.dialect.PostgreSQLEnumJdbcType;
+
 
 import java.time.Instant;
 
@@ -55,4 +55,13 @@ public class ArtifactEntity {
 
     @Column(name = "processed_at", insertable = false, updatable = false)
     private Instant processedAt;
+
+    public void updateFromEvent(ArtifactEvent updated) {
+        this.title = updated.getTitle();
+        this.body = updated.getBody();
+        this.url = updated.getUrl();
+        this.author = updated.getAuthor();
+        this.state = updated.getState();
+        this.sourceUpdatedAt = updated.getSourceUpdatedAt();
+    }
 }

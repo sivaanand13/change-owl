@@ -11,7 +11,6 @@ CREATE TABLE tracked_repositories (
       owner VARCHAR(255) NOT NULL,
       name VARCHAR(255) NOT NULL,
       is_active BOOLEAN DEFAULT TRUE,
-      last_etag VARCHAR(255),
       tech_id INTEGER REFERENCES technologies(id),
       created_at TIMESTAMP DEFAULT NOW(),
       last_synced_at TIMESTAMP WITH TIME ZONE,
@@ -37,7 +36,7 @@ CREATE TABLE artifacts (
     source_updated_at TIMESTAMP WITH TIME ZONE,
     processed_at TIMESTAMP DEFAULT NOW(),
 
-    UNIQUE(source, type, external_id)
+    UNIQUE(source, type, repo_id, external_id)
 );
 
 CREATE TABLE artifact_payloads (

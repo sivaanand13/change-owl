@@ -56,8 +56,8 @@ public class ArtifactMapper {
 
                 .url(dto.getUrl())
                 .rawPayload(dto.getRawJson())
-                .sourceUpdatedAt(parseInstant(dto.getUpdatedAt()))
-                .sourceCreatedAt(parseInstant(dto.getCreatedAt()))
+                .sourceUpdatedAt(parseInstant(dto.getUpdatedAt().toString()))
+                .sourceCreatedAt(parseInstant(dto.getCreatedAt().toString()))
                 .build();
     }
 
