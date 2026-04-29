@@ -1,0 +1,714 @@
+
+=== ARTIFACT ID: 1 ===
+TITLE: fix(core): prevent symlink path escape in prompt loaders (#36854)
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Improve security of deprecated prompt loaders",
+  "change_type": "refactor",
+  "change_surface": "internal",
+  "behavioral_impact": "security",
+  "impact_radius": [
+    "prompt_loaders"
+  ],
+  "key_points": [
+    "Validated resolved paths for template_path and examples",
+    "Prevented symlink-based path escape"
+  ],
+  "risk_level": "medium",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: fix(core): prevent symlink path escape in prompt loaders (#36854)
+author: akshayatam | state: closed | source: github
+content:
+Fixes #36854 
+
+Prevent symlink-based path escape in deprecated prompt loaders by validating resolved paths for `template_path` and `examples` when `allow_dangerous_paths=False`.
+
+Added regression tests
+Existing tests pass.
+
+Verification:
+Ran targeted tests in `libs/core/tests/unit_tests/prompts/test_loading.py`. Added tests for symlink escape scenarios. All tests in that file pass locally.
+
+LinkedIn: https://linkedin.com/in/akshayatam
+
+
+================================================================================
+
+=== ARTIFACT ID: 2 ===
+TITLE: feat(langchain): `MiddlewareTransformer` for agent streams
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Add MiddlewareTransformer for agent streams",
+  "change_type": "feature",
+  "change_surface": "internal",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "langchain"
+  ],
+  "key_points": [
+    "Adds native MiddlewareTransformer and typed MiddlewareEvent dataclass",
+    "Consumes AgentStreamer's updates stream mode",
+    "Filters based on naming convention used by create_agent"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: feat(langchain): `MiddlewareTransformer` for agent streams
+author: nick-hollon-lc | state: open | source: github
+content:
+## Summary
+
+- Adds native `MiddlewareTransformer` + typed `MiddlewareEvent` dataclass, pre-registered on `AgentStreamer.builtin_factories` so every `create_agent` run exposes `run.middleware` without opting in.
+- Consumes the graph's existing `updates` stream mode and filters by the `"{name}.{phase}"` node-naming convention `create_agent` already uses (`before_agent` / `before_model` / `after_model` / `after_agent`).
+- No changes required in middleware implementations — the node-name convention is the contract.
+- `run.middleware` is an in-process-only projection; it's not routed anywhere outside the caller's process.
+- Lives in langchain (not langgraph prebuilt) because middleware is a langchain concept — langgraph has no middleware primitive. Parallels how `ToolCallTransformer` lives next to `ToolNode` in langgraph prebuilt.
+
+Targeted at `nh/agent-streamer` — builds on top of `AgentStreamer`.
+
+================================================================================
+
+=== ARTIFACT ID: 5 ===
+TITLE: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/text-splitters
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Update nbconvert version",
+  "change_type": "chore",
+  "change_surface": "dependency",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "dependency.nbconvert"
+  ],
+  "key_points": [
+    "Bumped nbconvert from 7.17.0 to 7.17.1"
+  ],
+  "risk_level": "low",
+  "confidence": "medium"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/text-splitters
+author: dependabot[bot] | state: closed | source: github
+content:
+Bumps [nbconvert](https://github.com/jupyter/nbconvert) from 7.17.0 to 7.17.1.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/jupyter/nbconvert/releases">nbconvert's releases</a>.</em></p>
+<blockquote>
+<h2>v7.17.1</h2>
+<h2>7.17.1</h2>
+<p>This is a security release, fixing two CVEs:</p>
+<ul>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-4c99-qj7h-p3vg">CVE-2026-39377</a></li>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-7jqv-fw35-gmx9">CVE-2026-39378</a></li>
+</ul>
+<p>(full advisories will be published seven days after release, on 2026-04-14).</p>
+<p>(<a href="https://github.com/jupyter/nbconvert/compare/v7.17.0...b3b6ec01f872e9af8fd1769eb9cf1889c720ecf3">Full Changelog</a>)</p>
+<h3>Enhancements made</h3>
+<ul>
+<li>Allow configureable WebPDF JavaScript processing timeout <a href="https://redirect.github.com/jupyter/nbconvert/pull/2250">#2250</a> (<a href="https://github.com/timkpaine"><code>@​timkpaine</code></a>, <a href="https://github.com/Carreau"><code>@​Carreau</code></a>)</li>
+</ul>
+<h3>Bugs fixed</h3>
+<ul>
+<li>Fix <code>PermissionError</code> when checking template paths on shared filesystems <a href="https://redirect.github.com/jupyter/nbconvert/pull/2252">#2252</a> (<a href="https://github.com/ctcjab"><code>@​ctcjab</code></a>, <a href="https://github.com/krassowski"><code>@​krassowski</code></a>)</li>
+<li>Tweak webpdf template logic to fix duplicate extension problem <a href="https://redirect.github.com/jupyter/nbconvert/pull/2249">#2249</a> (<a href="https://github.com/timkpaine"><code>@​timkpaine</code></a>, <a href="https://github.com/Carreau"><code>@​Carreau</code></a>)</li>
+</ul>
+<h3>Maintenance and upkeep improvements</h3>
+<ul>
+<li>specify python version for pre 
+
+================================================================================
+
+=== ARTIFACT ID: 3 ===
+TITLE: feat(langchain): AgentStreamer for create_agent graphs
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Add new functionality for creating agent graphs using `AgentStreamer`",
+  "change_type": "feature",
+  "change_surface": "api",
+  "behavioral_impact": "functional_change",
+  "impact_radius": [
+    "content-block streaming"
+  ],
+  "key_points": [
+    "Adds `AgentStreamer` as the `create_agent` entry point",
+    "Pre-registers `ToolCallTransformer`",
+    "Adds `AgentRunStream` and `AsyncAgentRunStream` subclasses"
+  ],
+  "risk_level": "medium",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: feat(langchain): AgentStreamer for create_agent graphs
+author: nick-hollon-lc | state: open | source: github
+content:
+## Summary
+
+- Adds `AgentStreamer` as the `create_agent` entry point for the content-block streaming API.
+- Pre-registers `ToolCallTransformer` so every agent run exposes `run.tool_calls` without the caller opting in.
+- Adds `AgentRunStream` / `AsyncAgentRunStream` subclasses for `isinstance` checks and as the extension point for downstream streamers (e.g. a deepagents-layer `DeepAgentRunStream`).
+
+Targeted at `nh/content-block-centric-streaming` — it depends on the v2 content-block streaming work on that branch.
+
+================================================================================
+
+=== ARTIFACT ID: 4 ===
+TITLE: feat(core): add content-block-centric streaming (v2)
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Add content-block-centric streaming protocol to BaseChatModel",
+  "change_type": "feature",
+  "change_surface": "api",
+  "behavioral_impact": "functional_change",
+  "impact_radius": [
+    "language_models"
+  ],
+  "key_points": [
+    "Adds stream_v2() / astream_v2() methods for content-block-centric streaming",
+    "Provides explicit lifecycle events and typed projections"
+  ],
+  "risk_level": "medium",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: feat(core): add content-block-centric streaming (v2)
+author: nick-hollon-lc | state: closed | source: github
+content:
+## Summary
+
+Adds a content-block-centric streaming protocol to `BaseChatModel` — `stream_v2()` / `astream_v2()` — alongside the existing `stream()` / `astream()`. Gives consumers explicit lifecycle events (`message-start`, `content-block-start`/`delta`/`finish`, `message-finish`) instead of merge-your-own `AIMessageChunk`s, plus typed projections (`.text`, `.reasoning`, `.tool_calls`, `.usage`, `.output`) on a `ChatModelStream` object. Uses shared types from the published `langchain-protocol` package.
+
+V1 remains unchanged; nothing is deprecated.
+
+## Motivation
+
+V1 streaming hands consumers `Iterator[AIMessageChunk]` with no lifecycle boundaries — you merge chunks yourself, parse partial tool-call JSON yourself, and deal with provider-specific content shapes (Anthropic `content_block_start/delta/stop`, OpenAI deltas, reasoning under three different keys, etc.) because the chunk is the only streaming primitive. V2 compiles all of that into a normalized lifecycle with explicit start/finish boundaries per content block, finalized tool calls with parsed args (or explicit `InvalidToolCallBlock` on parse failure), and a shared wire format via `langchain-protocol`.
+
+The long-term target is for providers to implement `_stream_chat_model_events` natively. Until they do, the compat bridge in this PR translates legacy `AIMessageChunk` streams into protocol events transparently — every provider participates in v2 without being rewritten.
+
+## Key files
+
+- **`langchain_core/language_models/_compat_bridge.py`** — the transitional translation layer. `chunks_to_events` / `achunks_to_events` turn `AIMessageChunk` streams into protocol events; `message_to_events` / `amessage_to_events` do the same for finalized `AIMessage`s (cache hits, checkpoint replay, `model.invoke()` inside a graph node). Shrinks as provide
+
+================================================================================
+
+=== ARTIFACT ID: 10 ===
+TITLE: release(openai): 1.1.16
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Release version 1.1.16 of LangChain",
+  "change_type": "release",
+  "change_surface": "internal",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "openai"
+  ],
+  "key_points": [
+    "Released version 1.1.16 of LangChain"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: release(openai): 1.1.16
+author: ccurme | state: closed | source: github
+content:
+None
+
+================================================================================
+
+=== ARTIFACT ID: 6 ===
+TITLE: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/langchain
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Update dependency to patched version",
+  "change_type": "chore",
+  "change_surface": "dependency",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "dependency"
+  ],
+  "key_points": [
+    "Bumped nbconvert from 7.17.0 to 7.17.1"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/langchain
+author: dependabot[bot] | state: closed | source: github
+content:
+[//]: # (dependabot-start)
+⚠️  **Dependabot is rebasing this PR** ⚠️ 
+
+Rebasing might not happen immediately, so don't worry if this takes some time.
+
+Note: if you make any changes to this PR yourself, they will take precedence over the rebase.
+
+---
+
+[//]: # (dependabot-end)
+
+Bumps [nbconvert](https://github.com/jupyter/nbconvert) from 7.17.0 to 7.17.1.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/jupyter/nbconvert/releases">nbconvert's releases</a>.</em></p>
+<blockquote>
+<h2>v7.17.1</h2>
+<h2>7.17.1</h2>
+<p>This is a security release, fixing two CVEs:</p>
+<ul>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-4c99-qj7h-p3vg">CVE-2026-39377</a></li>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-7jqv-fw35-gmx9">CVE-2026-39378</a></li>
+</ul>
+<p>(full advisories will be published seven days after release, on 2026-04-14).</p>
+<p>(<a href="https://github.com/jupyter/nbconvert/compare/v7.17.0...b3b6ec01f872e9af8fd1769eb9cf1889c720ecf3">Full Changelog</a>)</p>
+<h3>Enhancements made</h3>
+<ul>
+<li>Allow configureable WebPDF JavaScript processing timeout <a href="https://redirect.github.com/jupyter/nbconvert/pull/2250">#2250</a> (<a href="https://github.com/timkpaine"><code>@​timkpaine</code></a>, <a href="https://github.com/Carreau"><code>@​Carreau</code></a>)</li>
+</ul>
+<h3>Bugs fixed</h3>
+<ul>
+<li>Fix <code>PermissionError</code> when checking template paths on shared filesystems <a href="https://redirect.github.com/jupyter/nbconvert/pull/2252">#2252</a> (<a href="https://github.com/ctcjab"><code>@​ctcjab</code></a>, <a href="https://github.com/krassowski"><code>@​krassowski</code></a>)</li>
+<li>Tweak webpdf template logic to fix duplicate extension problem <a href="https://redirect.github.co
+
+================================================================================
+
+=== ARTIFACT ID: 9 ===
+TITLE: chore: bump python-dotenv from 1.1.1 to 1.2.2 in /libs/partners/chroma
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Update Python-DotEnv dependency",
+  "change_type": "chore",
+  "change_surface": "dependency",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "dependency.python_dotenv"
+  ],
+  "key_points": [
+    "Bumped Python-DotEnv from 1.1.1 to 1.2.2"
+  ],
+  "risk_level": "low",
+  "confidence": "medium"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: chore: bump python-dotenv from 1.1.1 to 1.2.2 in /libs/partners/chroma
+author: dependabot[bot] | state: closed | source: github
+content:
+Bumps [python-dotenv](https://github.com/theskumar/python-dotenv) from 1.1.1 to 1.2.2.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/theskumar/python-dotenv/releases">python-dotenv's releases</a>.</em></p>
+<blockquote>
+<h2>v1.2.2</h2>
+<h3>Added</h3>
+<ul>
+<li>Support for Python 3.14, including the free-threaded (3.14t) build. (#)</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>The <code>dotenv run</code> command now forwards flags directly to the specified command by <a href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a href="https://redirect.github.com/theskumar/python-dotenv/pull/607">theskumar/python-dotenv#607</a></li>
+<li>Improved documentation clarity regarding override behavior and the reference page.</li>
+<li>Updated PyPy support to version 3.11.</li>
+<li>Documentation for FIFO file support.</li>
+<li>Support for Python 3.9.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Improved <code>set_key</code> and <code>unset_key</code> behavior when interacting with symlinks by <a href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a href="https://github.com/theskumar/python-dotenv/commit/790c5c02991100aa1bf41ee5330aca75edc51311">#790c5</a></li>
+<li>Corrected the license specifier and added missing Python 3.14 classifiers in package metadata by <a href="https://github.com/JYOuyang"><code>@​JYOuyang</code></a> in <a href="https://redirect.github.com/theskumar/python-dotenv/pull/590">theskumar/python-dotenv#590</a></li>
+</ul>
+<h3>Breaking Changes</h3>
+<ul>
+<li>
+<p><code>dotenv.set_key</code> and <code>dotenv.unset_key</code> used to follow symlinks in some
+situations. This is no longer the case. For that behavior to be restored in
+all cases, <code>follow_symlinks=True</code> should be used.</p>
+</li>
+<li>
+<p>In the CLI, <code>set</code> and 
+
+================================================================================
+
+=== ARTIFACT ID: 8 ===
+TITLE: chore: bump python-dotenv from 1.1.1 to 1.2.2 in /libs/partners/huggingface
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Update Python-DotEnv dependency",
+  "change_type": "chore",
+  "change_surface": "dependency",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "dependency.python_dotenv"
+  ],
+  "key_points": [
+    "Bumped Python-DotEnv from 1.1.1 to 1.2.2"
+  ],
+  "risk_level": "low",
+  "confidence": "medium"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: chore: bump python-dotenv from 1.1.1 to 1.2.2 in /libs/partners/huggingface
+author: dependabot[bot] | state: closed | source: github
+content:
+Bumps [python-dotenv](https://github.com/theskumar/python-dotenv) from 1.1.1 to 1.2.2.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/theskumar/python-dotenv/releases">python-dotenv's releases</a>.</em></p>
+<blockquote>
+<h2>v1.2.2</h2>
+<h3>Added</h3>
+<ul>
+<li>Support for Python 3.14, including the free-threaded (3.14t) build. (#)</li>
+</ul>
+<h3>Changed</h3>
+<ul>
+<li>The <code>dotenv run</code> command now forwards flags directly to the specified command by <a href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a href="https://redirect.github.com/theskumar/python-dotenv/pull/607">theskumar/python-dotenv#607</a></li>
+<li>Improved documentation clarity regarding override behavior and the reference page.</li>
+<li>Updated PyPy support to version 3.11.</li>
+<li>Documentation for FIFO file support.</li>
+<li>Support for Python 3.9.</li>
+</ul>
+<h3>Fixed</h3>
+<ul>
+<li>Improved <code>set_key</code> and <code>unset_key</code> behavior when interacting with symlinks by <a href="https://github.com/bbc2"><code>@​bbc2</code></a> in <a href="https://github.com/theskumar/python-dotenv/commit/790c5c02991100aa1bf41ee5330aca75edc51311">#790c5</a></li>
+<li>Corrected the license specifier and added missing Python 3.14 classifiers in package metadata by <a href="https://github.com/JYOuyang"><code>@​JYOuyang</code></a> in <a href="https://redirect.github.com/theskumar/python-dotenv/pull/590">theskumar/python-dotenv#590</a></li>
+</ul>
+<h3>Breaking Changes</h3>
+<ul>
+<li>
+<p><code>dotenv.set_key</code> and <code>dotenv.unset_key</code> used to follow symlinks in some
+situations. This is no longer the case. For that behavior to be restored in
+all cases, <code>follow_symlinks=True</code> should be used.</p>
+</li>
+<li>
+<p>In the CLI, <code>set</code>
+
+================================================================================
+
+=== ARTIFACT ID: 7 ===
+TITLE: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/core
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Update dependency to patched version",
+  "change_type": "chore",
+  "change_surface": "dependency",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "dependency"
+  ],
+  "key_points": [
+    "Bumped nbconvert from 7.17.0 to 7.17.1"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: chore: bump nbconvert from 7.17.0 to 7.17.1 in /libs/core
+author: dependabot[bot] | state: closed | source: github
+content:
+Bumps [nbconvert](https://github.com/jupyter/nbconvert) from 7.17.0 to 7.17.1.
+<details>
+<summary>Release notes</summary>
+<p><em>Sourced from <a href="https://github.com/jupyter/nbconvert/releases">nbconvert's releases</a>.</em></p>
+<blockquote>
+<h2>v7.17.1</h2>
+<h2>7.17.1</h2>
+<p>This is a security release, fixing two CVEs:</p>
+<ul>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-4c99-qj7h-p3vg">CVE-2026-39377</a></li>
+<li><a href="https://github.com/jupyter/nbconvert/security/advisories/GHSA-7jqv-fw35-gmx9">CVE-2026-39378</a></li>
+</ul>
+<p>(full advisories will be published seven days after release, on 2026-04-14).</p>
+<p>(<a href="https://github.com/jupyter/nbconvert/compare/v7.17.0...b3b6ec01f872e9af8fd1769eb9cf1889c720ecf3">Full Changelog</a>)</p>
+<h3>Enhancements made</h3>
+<ul>
+<li>Allow configureable WebPDF JavaScript processing timeout <a href="https://redirect.github.com/jupyter/nbconvert/pull/2250">#2250</a> (<a href="https://github.com/timkpaine"><code>@​timkpaine</code></a>, <a href="https://github.com/Carreau"><code>@​Carreau</code></a>)</li>
+</ul>
+<h3>Bugs fixed</h3>
+<ul>
+<li>Fix <code>PermissionError</code> when checking template paths on shared filesystems <a href="https://redirect.github.com/jupyter/nbconvert/pull/2252">#2252</a> (<a href="https://github.com/ctcjab"><code>@​ctcjab</code></a>, <a href="https://github.com/krassowski"><code>@​krassowski</code></a>)</li>
+<li>Tweak webpdf template logic to fix duplicate extension problem <a href="https://redirect.github.com/jupyter/nbconvert/pull/2249">#2249</a> (<a href="https://github.com/timkpaine"><code>@​timkpaine</code></a>, <a href="https://github.com/Carreau"><code>@​Carreau</code></a>)</li>
+</ul>
+<h3>Maintenance and upkeep improvements</h3>
+<ul>
+<li>specify python version for pre <a href="h
+
+================================================================================
+
+=== ARTIFACT ID: 11 ===
+TITLE: fix(openai): tolerate `prompt_cache_retention` drift in streaming
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Possible drift between OpenAI's Response API and the openai SDK's Response model",
+  "intent": "Fix discrepancy in response retention timing",
+  "change_type": "bugfix",
+  "change_surface": "api",
+  "behavioral_impact": "performance",
+  "impact_radius": [
+    "streaming"
+  ],
+  "key_points": [
+    "Normalized known drift in prompt cache retention timing",
+    "Added escape hatch for potential future drifts"
+  ],
+  "risk_level": "medium",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: fix(openai): tolerate `prompt_cache_retention` drift in streaming
+author: mdrxy | state: closed | source: github
+content:
+OpenAI's Responses API is emitting `prompt_cache_retention: "in_memory"` on streaming events, but the `openai` SDK's `Response` pydantic model declares the `Literal` as only `"in-memory"` / `"24h"` ([openai-python#2883](https://github.com/openai/openai-python/issues/2883)). `Response.model_validate()` raises inside `_coerce_chunk_response`, aborting the stream and forcing downstream fallback chains. Normalize the known mismatch and add an escape hatch for future drifts.
+
+Possibly related to #36899
+
+================================================================================
+
+=== ARTIFACT ID: 12 ===
+TITLE: fix: ignore empty string reasoning_content in _extract_reasoning_from_additional_kwargs
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Some providers emit empty strings in additional kwargs, causing issues for downstream consumers.",
+  "intent": "Correct logic to skip empty strings in reasoning detection",
+  "change_type": "bugfix",
+  "change_surface": "api",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "langchain",
+    "reasoning"
+  ],
+  "key_points": [
+    "Changed guard condition from is not None to is truthy",
+    "Skips empty strings in reasoning detection"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: fix: ignore empty string reasoning_content in _extract_reasoning_from_additional_kwargs
+author: VANDRANKI | state: closed | source: github
+content:
+Fixes #36194.
+
+**Bug**
+
+`_extract_reasoning_from_additional_kwargs` uses `reasoning_content is not None` to detect a valid reasoning block. Some providers (e.g. Groq) emit `"reasoning_content": ""` in `additional_kwargs` even when no reasoning was produced. This caused an empty `ReasoningContentBlock` (`{"type": "reasoning", "reasoning": ""}`) to be prepended to the message content list, which some downstream consumers treat as an error.
+
+**Fix**
+
+Change the guard from `is not None` to a truthy check:
+
+```python
+# Before
+if reasoning_content is not None and isinstance(reasoning_content, str):
+
+# After
+if reasoning_content and isinstance(reasoning_content, str):
+```
+
+An empty string is falsy, so it is now skipped. A non-empty string still produces the reasoning block as before.
+
+================================================================================
+
+=== ARTIFACT ID: 15 ===
+TITLE: feat: Add LangSmith integration metadata to create_agent and init_chat_model
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Not explicitly stated in PR",
+  "intent": "Add LangSmith integration metadata to agent creation functions",
+  "change_type": "feature",
+  "change_surface": "api",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "agent creation"
+  ],
+  "key_points": [
+    "Adds `ls_integration` metadata to agents created via create_agent() and init_chat_model()"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: feat: Add LangSmith integration metadata to create_agent and init_chat_model
+author: tanushree-sharma | state: closed | source: github
+content:
+Adds `ls_integration` metadata to agents created via create_agent() and init_chat_model(), enabling identification of langchain traces in LangSmith. create_agent() gets ls_integration": "langchain_create_agent" and init_chat_model gets "langchain_chat_model"
+
+**create_agent**
+<img width="826" height="843" alt="image" src="https://github.com/user-attachments/assets/601608c1-6da0-4655-be32-5b2943781a02" />
+
+
+**init_chat_model**
+<img width="875" height="679" alt="image" src="https://github.com/user-attachments/assets/43196f9a-a753-46ba-8ccf-6ff22b1eaaad" />
+
+
+================================================================================
+
+=== ARTIFACT ID: 14 ===
+TITLE: fix(anthropic): handle empty message content gracefully
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "API rejection of messages with empty content",
+  "intent": "Improve handling of empty message content",
+  "change_type": "refactor",
+  "change_surface": "api",
+  "behavioral_impact": "none",
+  "impact_radius": [
+    "anthropic"
+  ],
+  "key_points": [
+    "Replaced empty strings in human and system messages with spaces",
+    "Fixed a minor inefficiency in tool_result content formatting"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: fix(anthropic): handle empty message content gracefully
+author: JasonCZMeng | state: closed | source: github
+content:
+## Summary
+
+Replace empty string content in human and system messages with a single space (` `) before sending to the Anthropic API. This prevents a `BadRequestError` (400) when `HumanMessage` or `SystemMessage` has `content=""`.
+
+Fixes #35081
+
+## Motivation
+
+Anthropic's API rejects messages with empty content: *"all messages must have non-empty content except for the optional final assistant message"*. This is a problem in multi-agent pipelines where one agent's empty output becomes the next agent's user input. The same approach was adopted by [AutoGen](https://github.com/microsoft/autogen/pull/6063).
+
+## Changes
+
+**`libs/partners/anthropic/langchain_anthropic/chat_models.py`**
+- In `_format_messages()`, empty string content (`""`) in human and system messages is replaced with `" "` before calling the API
+- Handles string content, list content blocks, and dict text blocks
+- Also fixes a minor inefficiency in tool_result content formatting for plain string content
+
+**`libs/partners/anthropic/tests/unit_tests/test_chat_models.py`**
+- Added `test__format_messages_with_empty_system_and_human_content()` covering the fix
+
+================================================================================
+
+=== ARTIFACT ID: 13 ===
+TITLE: perf(core): defer tracer imports in runnables/base.py to call time
+TYPE: pull_request
+
+--- SUMMARY ---
+{
+  "rationale": "Eliminated ~76ms of import overhead in the tracer chain",
+  "intent": "Optimize import timing for better performance",
+  "change_type": "refactor",
+  "change_surface": "runtime",
+  "behavioral_impact": "performance",
+  "impact_radius": [
+    "langchain-core"
+  ],
+  "key_points": [
+    "Removed 4 eager top-level tracer imports",
+    "Moved imports to TYPE_CHECKING",
+    "Deferred imports at call sites",
+    "Kept _StreamingCallbackHandler at top level"
+  ],
+  "risk_level": "low",
+  "confidence": "high"
+}
+
+--- ORIGINAL (TRUNCATED) ---
+pull request in langchain-ai/langchain (LangChain)
+title: perf(core): defer tracer imports in runnables/base.py to call time
+author: sydney-runkle | state: open | source: github
+content:
+## Summary
+
+- Removes 4 eager top-level tracer imports from `runnables/base.py` (`event_stream`, `log_stream`, `root_listeners`, `_streaming`) that were pulled in on every `from langchain_core.language_models import BaseChatModel`
+- Moves them to `TYPE_CHECKING` and adds deferred imports at the call sites (`astream_log`, `astream_events`, `with_listeners`, `with_alisteners`)
+- Keeps `_StreamingCallbackHandler` at top level since it's a lightweight module needed for isinstance checks
+
+## Motivation
+
+The tracer import chain was the dominant cost in `from langchain_core.language_models import BaseChatModel`:
+
+```
+runnables/base.py
+  → tracers.event_stream → tracers.log_stream → tracers.base
+  → tracers.schemas → langsmith.run_trees → langsmith.schemas (~32ms self)
+```
+
+This eliminates ~76ms from the import chain, bringing `BaseChatModel` import from ~291ms down to ~160ms.
+
+## Test plan
+
+- [ ] `cd libs/core && uv run --group test pytest tests/unit_tests/runnables/ -x -q`
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+
+================================================================================

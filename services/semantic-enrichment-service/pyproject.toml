@@ -1,0 +1,28 @@
+[project]
+name = "semantic-enrichment-service"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "accelerate>=1.13.0",
+    "einops>=0.8.2",
+    "fastapi[standard]>=0.136.1",
+    "faststream[kafka]>=0.6.7",
+    "kafka-python-ng>=2.2.3",
+    "psycopg[binary,pool]>=3.3.3",
+    "pydantic-settings>=2.14.0",
+    "python-dotenv>=1.2.2",
+    "rich>=15.0.0",
+    "sentence-transformers>=3.0.0",
+    "structlog>=25.5.0",
+    "torch>=2.4.0",
+]
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }

@@ -73,5 +73,17 @@ services:
       - postgres
       - kafka
 
+  semantic-enrichment-service:
+    container_name: semantic-enrichment-service
+    build:
+      context: ../services/semantic-enrichment-service
+      dockerfile: ./Dockerfile
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    env_file: ../services/semantic-enrichment-service/.env
+    ports:
+      - "8050:8050"
+
+
 volumes:
   postgres_data:

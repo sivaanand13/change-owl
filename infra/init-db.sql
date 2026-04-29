@@ -44,31 +44,37 @@ CREATE TABLE artifact_payloads (
    raw_payload JSONB
 );
 
-CREATE TABLE intelligence (
-      id SERIAL PRIMARY KEY,
-      artifact_id INTEGER UNIQUE NOT NULL REFERENCES artifacts(id) ON DELETE CASCADE,
-      ai_summary TEXT,
-      embedding vector(1536),
-      model_version VARCHAR(50),
-      processing_status VARCHAR(20) DEFAULT 'PENDING',
-      enriched_at TIMESTAMP DEFAULT NOW()
+CREATE TABLE artifact_intelligence (
+    artifact_id INTEGER PRIMARY KEY REFERENCES artifacts(id) ON DELETE CASCADE,
+    change_type VARCHAR(50), 
+    risk_level VARCHAR(50),
+    confidence VARCHAR(20),
+
+    embedding_model VARCHAR(50),
+    summarizer_model VARCHAR(50),
+
+    ai_summary JSONB,
+    embedding vector(768),
+    processing_status VARCHAR(20) DEFAULT 'PENDING',
+    enriched_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 CREATE TABLE tags (
-      id SERIAL PRIMARY KEY,
-      name VARCHAR(50) UNIQUE NOT NULL,
-      category VARCHAR(50),
-      description TEXT
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL,
+    category VARCHAR(50),
+    description TEXT
 );
 
 CREATE TABLE intelligence_tags (
-    intel_id INTEGER REFERENCES intelligence(id) ON DELETE CASCADE,
+    intel_id INTEGER REFERENCES artifact_intelligence(artifact_id) ON DELETE CASCADE,
     tag_id INTEGER REFERENCES tags(id) ON DELETE CASCADE,
     confidence_score FLOAT DEFAULT 1.0,
     PRIMARY KEY (intel_id, tag_id)
 );
 
-CREATE INDEX ON intelligence USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX ON artifact_intelligence USING hnsw (embedding vector_cosine_ops);
+CREATE INDEX idx_intel_risk_type ON artifact_intelligence (risk_level, change_type);
 CREATE INDEX idx_artifacts_repo_id ON artifacts(repo_id);
 CREATE INDEX idx_artifacts_type ON artifacts(type);
 

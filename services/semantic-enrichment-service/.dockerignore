@@ -1,0 +1,9 @@
+.venv
+__pycache__
+.git
+.env
+*.egg-info
+*.npy
+*.json
+*.csv
+*.xlsx
