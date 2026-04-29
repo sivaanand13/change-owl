@@ -24,14 +24,17 @@ ChangeOwl is a multi-module, event-driven platform for turning engineering activ
   - Contains common event interfaces, canonical event models, and Kafka topic names.
 
 - **`semantic-enrichment-service`**
-  - Currently under development.
-  - Planned for semantic enrichment, clustering, embeddings, and higher-level reasoning on top of stored artifacts.
+	- FastAPI + FastStream worker that consumes canonical artifacts from Kafka topic `technical-artifacts-canonical`.
+	- Fetches the source artifact from Postgres, generates a technical summary with the Qwen instruct model, and creates an embedding with the Nomic text model.
+	- Persists enriched results back to Postgres and publishes `ArtifactEnrichedEvent` messages to Kafka topic `technical-artifacts-enriched`.
+	- Sends failed messages to the DLQ topic `technical-artifacts-canonical_dlq`.
 
 ### Infrastructure
 
 - **Kafka** in KRaft mode for event streaming
 - **Kafdrop** for topic and consumer inspection
 - **Postgres** with **pgvector** support for storage and future vector/semantic workflows
+- **Python semantic worker** for model-driven enrichment over canonical artifacts
 - **Docker Compose** for local infra bootstrapping
 
 ## High-level architecture
@@ -46,7 +49,9 @@ flowchart LR
 	ST --> METRICS[Actuator + Micrometer]
 	ING --> METRICS
 	K --> KD[Kafdrop]
-	SEM[semantic-enrichment-service\nunder development] -. reads from storage / canonical stream .-> ST
+	KC --> SEM[semantic-enrichment-service]
+	SEM -->|ArtifactEnrichedEvent| KE[(Kafka\ntechnical-artifacts-enriched)]
+	SEM --> DB
 ```
 
 ## Event flow
@@ -57,6 +62,7 @@ sequenceDiagram
 	participant Ingestion as github-ingestion-service
 	participant Kafka as Kafka
 	participant Storage as storage-service
+	participant Semantic as semantic-enrichment-service
 	participant Postgres as Postgres
 
 	GitHub->>Ingestion: Fetch PRs / discussions
@@ -65,6 +71,9 @@ sequenceDiagram
 	Kafka->>Storage: Deliver ArtifactEvent
 	Storage->>Postgres: Persist artifact + payload + repo metadata
 	Storage->>Kafka: Publish technical-artifacts-canonical
+	Kafka->>Semantic: Deliver CanonicalArtifactEvent
+	Semantic->>Postgres: Load artifact + persist enriched result
+	Semantic->>Kafka: Publish technical-artifacts-enriched
 ```
 
 ## Current implementation status
@@ -80,20 +89,22 @@ What is already implemented:
 - Kafka producer for the ingestion service
 - Kafka consumer, persistence layer, and canonical republishing in storage
 - Basic observability with logs, timers, counters, and actuator endpoints
+- Semantic enrichment worker with summarization, embeddings, persistence, and DLQ handling
 - Local infrastructure for Kafka, Kafdrop, and Postgres/pgvector
 
 ### Active work
 
-- `semantic-enrichment-service` is being built next
-- future work will focus on semantic enrichment, entity extraction, embeddings, and trend synthesis
+- Building the Next.js front-end for reviewing, exploring, and operationalizing the canonical and enriched artifact streams
+- Following that, adding the RAG layer for retrieval-backed reasoning, synthesis, and guided analysis over repository knowledge
 
 ## Tech stack
 
 - **Language:** Java 21
 - **Build tool:** Maven multi-module
-- **Framework:** Spring Boot 3.x
+- **Framework:** Spring Boot 3.x, FastAPI, FastStream
 - **Messaging:** Apache Kafka
 - **Persistence:** PostgreSQL + Spring Data JPA (Hibernate)
+- **Semantic models:** SentenceTransformers, Transformers, Torch
 - **Observability:** Spring Boot Actuator, Micrometer
 - **Serialization:** Jackson, Spring Kafka JSON serializers/deserializers
 - **Utilities:** Lombok
@@ -118,4 +129,4 @@ changeowl/
 
 ## Current delivery focus
 
-The repo is currently in a stable state for end-to-end ingestion and storage. The next milestone of v1 is semantic enrichment, which will build on the canonical artifact stream already produced by the storage layer.
+The repo is currently in a stable state for end-to-end ingestion, storage, and semantic enrichment. The next milestone of v1 is the Next.js front-end, followed by the RAG layer for retrieval-backed reasoning on top of the canonical and enriched artifact streams.
