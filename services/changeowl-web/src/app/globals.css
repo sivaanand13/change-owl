@@ -1,0 +1,131 @@
+@import "tailwindcss";
+
+:root {
+  /* Core Palette */
+  --background: #fcfaf7;
+  --foreground: #0f172a;
+
+  /* Brand Colors */
+  --color-brand-primary: #0d9488;
+  --color-brand-secondary: #6d28d9;
+  --color-brand-accent: #f59e0b;
+  --color-brand-surface: #fafafa;
+  --color-surface-interactive: #f6f6f6;
+
+  /* Status Colors */
+  --success: #10b981;
+  --error: #ef4444;
+
+  --text-muted: #64748b;
+  --border-subtle: color-mix(in srgb, #0f172a, transparent 90%);
+}
+
+.dark {
+  /* TODO */
+  --background: #0f172a;
+  --foreground: #f1f5f9;
+
+  --color-brand-surface: #1e293b;
+  --text-muted: #94a3b8;
+}
+
+@theme inline {
+  /* Color mappings */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+
+  --color-brand-primary: var(--color-brand-primary);
+  --color-brand-secondary: var(--color-brand-secondary);
+  --color-brand-accent: var(--color-brand-accent);
+  --color-brand-surface: var(--color-brand-surface);
+  --color-surface-interactive: var(--color-surface-interactive);
+
+  --color-text-muted: var(--text-muted);
+  --color-border-subtle: var(--border-subtle);
+
+  --color-status-success: var(--success);
+  --color-status-error: var(--error);
+
+  /* Card styles */
+  --text-logo: 2rem;
+  --text-card-title: 1.125rem;
+  --text-card-body: 0.8rem;
+  --text-info: 0.9rem;
+  --line-height-card-body: 1.5;
+  --radius-card: 0.75rem;
+  --spacing-card-padding: 1.5rem;
+  --shadow-card:
+    0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+
+  /* Ticker */
+  --text-ticker: 0.8rem;
+  --text-small: 0.75rem;
+}
+
+.no-scrollbar,
+.no-scrollbar * {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none;
+}
+
+@property --angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+@keyframes spin-angle {
+  to {
+    --angle: 360deg;
+  }
+}
+
+@layer components {
+  .badge-base {
+    @apply px-2 py-0.5 rounded text-small font-bold border transition-colors;
+  }
+
+  .text-label-muted {
+    @apply text-small font-bold text-text-muted/50 uppercase tracking-tighter;
+  }
+
+  .link-action {
+    @apply flex items-center gap-1.5 text-small font-bold uppercase tracking-wider
+           text-brand-primary hover:text-brand-secondary transition-colors
+           decoration-brand-primary/30 underline-offset-4 hover:underline;
+  }
+
+  .glow-border {
+    @apply rounded-xl p-[0.8rem] relative isolate;
+
+    &::before {
+      content: "";
+      position: absolute;
+      inset: -3px;
+      border-radius: inherit;
+      background: linear-gradient(
+        260deg,
+        var(--color-brand-primary),
+        var(--color-brand-secondary),
+        var(--color-brand-accent)
+      );
+      opacity: 0.3;
+      animation: spin-angle 10s linear infinite;
+      filter: blur(6px);
+      z-index: -2;
+    }
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      background: var(--brand-surface, white);
+      z-index: -1;
+    }
+  }
+}

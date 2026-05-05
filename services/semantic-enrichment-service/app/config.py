@@ -9,6 +9,7 @@ class Settings(BaseSettings):
     KAFKA_GROUP_ID: str
     KAFKA_DLQ: str
     KAFKA_PRODUCER_TOPIC: str
+    INTERNAL_API_KEY: str
     model_config = SettingsConfigDict(env_file=".env")
 
 settings = Settings()

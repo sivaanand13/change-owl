@@ -19,5 +19,10 @@ class EmbeddingService:
         input = artifact.to_narrative()
         embedding = self.model.encode(input)
         return embedding.tolist()
+    
+    def generate_query_embedding(self, query_text: str):
+        processed_query = query_text.strip()[:1000]
+        embedding = self.model.encode(processed_query)
+        return embedding.tolist()
 
 embedder = EmbeddingService()

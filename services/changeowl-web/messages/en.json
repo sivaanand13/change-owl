@@ -1,0 +1,33 @@
+{
+  "Navigation": {
+    "feed": "Intelligence Feed",
+    "repositories": "Repositories",
+    "patterns": "Patterns",
+    "newAnalysis": "New Analysis"
+  },
+  "Status": {
+    "liveSystem": "Pipeline Active",
+    "reposTracked": "Repos Monitored",
+    "artifactsIngested": "Artifacts Ingested",
+    "intelligentInsights": "Semantic Insights Generated"
+  },
+  "Settings": {
+    "toggleTheme": "Toggle between dark and light mode",
+    "changeLanguage": "Switch Language",
+    "currentLocale": "English"
+  },
+  "Common": {
+    "loading": "Processing semantic layers...",
+    "error": "Pipeline disruption detected.",
+    "noData": "Waiting for Kafka ingestion...",
+    "viewAll": "View All Artifacts"
+  },
+  "Footer": {
+    "description": "Technical Intelligence Platform",
+    "links": {
+        "linkedin": "LinkedIn",
+        "github": "GitHub",
+        "source": "Source Code"
+    }
+  }
+}
