@@ -13,6 +13,7 @@
         <module>changeowl-shared</module>
         <module>services/github-ingestion-service</module>
         <module>services/storage-service</module>
+        <module>services/artifact-gateway-service</module>
     </modules>
 
     <properties>

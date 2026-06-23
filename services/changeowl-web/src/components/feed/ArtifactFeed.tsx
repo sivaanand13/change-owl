@@ -1,22 +1,26 @@
-"use client";
+'use client';
 
-import { ArtifactFilters, useArtifacts } from "@/hooks/use-artifacts";
-import { ArtifactCard } from "./ArtifactCard";
-import { Loader2 } from "lucide-react";
-import { ErrorState } from "../ui/ErrorState";
-import { Virtuoso } from "react-virtuoso";
-import { useQueryStates } from "nuqs";
-import { artifactFilterParser } from "./filters";
-import { FilterGroup } from "./FilterGroup";
-import { useCallback } from "react";
+import { ArtifactFilters, useArtifacts } from '@/hooks/use-artifacts';
+import { ArtifactCard } from './ArtifactCard';
+import { Loader2 } from 'lucide-react';
+import { ErrorState } from '../ui/ErrorState';
+import { Virtuoso } from 'react-virtuoso';
+import { useQueryStates } from 'nuqs';
+import { artifactFilterParser } from './filters';
+import { FilterGroup } from './FilterGroup';
+import { useCallback, useEffect } from 'react';
 
 export function ArtifactFeed() {
   const [filters, setFilters] = useQueryStates(artifactFilterParser, {
     shallow: false,
-    history: "push",
+    history: 'push',
   });
-  const { artifacts, setSize, isLoadingMore, error, isReachingEnd } =
-    useArtifacts(filters);
+
+  const { artifacts, setSize, isLoadingMore, error, isReachingEnd } = useArtifacts(filters);
+
+  useEffect(() => {
+    setSize(1);
+  }, [filters.q, filters.type, filters.risk, filters.surface, filters.behavior, setSize]);
 
   const setFiltersCallback = useCallback(
     (filters: ArtifactFilters) => {
@@ -24,9 +28,8 @@ export function ArtifactFeed() {
         ...filters,
       });
     },
-    [setFilters],
+    [setFilters]
   );
-
   const loadMore = () => {
     if (!isReachingEnd && !isLoadingMore) {
       setSize((prev) => prev + 1);
@@ -77,10 +80,7 @@ export function ArtifactFeed() {
               if (isLoadingMore) {
                 return (
                   <div className="flex justify-center p-20">
-                    <Loader2
-                      className="animate-spin text-slate-400"
-                      size={20}
-                    />
+                    <Loader2 className="animate-spin text-slate-400" size={20} />
                   </div>
                 );
               }
@@ -90,12 +90,12 @@ export function ArtifactFeed() {
                   <div className="flex flex-col items-center justify-center p-20 gap-2 border-t border-slate-100 mt-10">
                     <p className="text-card-body font-bold text-slate-800 uppercase tracking-widest">
                       {artifacts.length === 0
-                        ? "No matching artifacts found"
-                        : "End of Intelligence Stream"}
+                        ? 'No matching artifacts found'
+                        : 'End of Intelligence Stream'}
                     </p>
                     <p className="text-small text-slate-600">
                       {artifacts.length === 0
-                        ? "Try adjusting your filters or search query"
+                        ? 'Try adjusting your filters or search query'
                         : `Indexed ${artifacts.length} patterns across distributed systems`}
                     </p>
                   </div>

@@ -8,7 +8,7 @@ import lombok.Getter;
 @Entity
 @Table(name = "technologies")
 @Getter
-public class TechnologyEntity {
+public class  TechnologyEntity {
 
     @Id
     private Integer id;
