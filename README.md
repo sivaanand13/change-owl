@@ -13,8 +13,14 @@ ChangeOwl is a multi-module, event-driven platform for turning engineering activ
   - Offers multi-dimensional filtering by change type, surface area, risk level, confidence, behavioral impact, and related repositories.
   - Semantic search via embeddings and full-text search integration.
   - Individual artifact detail pages with AI-generated intelligence summary (rationale, intent, risk analysis, impact radius, key points).
-  - Real-time connection to semantic enrichment service for vector-based similarity matching.
+	- Real-time connection to the artifact gateway for search, detail, ticker, and vector-based similarity matching.
   - Internationalization support and responsive design with TailwindCSS.
+
+- **`artifact-gateway-service`**
+	- Spring Boot query service that powers the frontend and Search Assistant retrieval layer.
+	- Reads artifacts, intelligence, repository metadata, and pgvector similarity data from Postgres.
+	- Proxies query embedding requests to the semantic enrichment service.
+	- Exposes artifact browsing, detail lookup, similar-artifact discovery, and live ticker APIs.
 
 - **`github-ingestion-service`**
   - Spring Boot service that periodically pulls GitHub PRs and discussions.
@@ -62,8 +68,10 @@ flowchart LR
 	KC --> SEM[semantic-enrichment-service]
 	SEM -->|ArtifactEnrichedEvent| KE[(Kafka\ntechnical-artifacts-enriched)]
 	SEM --> DB
-	DB --> WEB[changeowl-web]
-	WEB -->|/embed requests| SEM
+	DB --> GW[artifact-gateway-service]
+	GW -->|/embed requests| SEM
+	GW --> WEB[changeowl-web]
+	WEB -->|API routes + UI| GW
 	WEB -->|Browser| USER[Analyst]
 ```
 
@@ -76,6 +84,7 @@ sequenceDiagram
 	participant Kafka as Kafka
 	participant Storage as storage-service
 	participant Semantic as semantic-enrichment-service
+	participant Gateway as artifact-gateway-service
 	participant Postgres as Postgres
 	participant Frontend as changeowl-web
 
@@ -88,9 +97,10 @@ sequenceDiagram
 	Kafka->>Semantic: Deliver CanonicalArtifactEvent
 	Semantic->>Postgres: Load artifact + persist enriched result
 	Semantic->>Kafka: Publish technical-artifacts-enriched
-	Frontend->>Postgres: Query enriched artifacts + filtering
-	Frontend->>Semantic: Request embeddings for semantic search
-	Semantic->>Frontend: Return embedding vectors
+	Frontend->>Gateway: Request artifacts, filters, detail, ticker
+	Gateway->>Postgres: Query enriched artifacts + filtering + similarity
+	Gateway->>Semantic: Request embeddings for semantic search
+	Semantic->>Gateway: Return embedding vectors
 	Frontend->>Frontend: Render artifact feed with intelligence
 ```
 
@@ -108,18 +118,22 @@ What is already implemented:
 - Kafka consumer, persistence layer, and canonical republishing in storage
 - Basic observability with logs, timers, counters, and actuator endpoints
 - Semantic enrichment worker with summarization, embeddings, persistence, and DLQ handling
+- Artifact gateway service for artifact browsing, ticker data, and semantic search retrieval
 - Local infrastructure for Kafka, Kafdrop, and Postgres/pgvector
 - **Next.js frontend with artifact feed, multi-dimensional filtering, and semantic search**
 - **AI-enhanced artifact intelligence display (risk, confidence, impact analysis)**
 - **Real-time vector similarity matching for related artifacts**
 
-### Phase 2: Agentic Intelligence 🚀 **IN PROGRESS**
+### Phase 2: Search Assistant 🚀 **In Progress**
 
-ChangeOwl is transitioning from a data-passive system to an autonomous **Agentic Network** where specialized agents translate raw engineering activity into actionable insights.
+The next delivery focus is the **Search Assistant**, an agentic RAG layer for engineering intelligence.
+
+Its purpose is to turn ChangeOwl into an evidence-backed search and reasoning system that answers natural language questions using retrieved artifacts, filters, and similarity search.
 
 **Roadmap:**
-- **The Architect** — Agent for identifying design patterns, mapping architectural decisions, and integrating business context
-- **The Search Assistant** — Agentic RAG for evidence-backed technical reasoning and natural language queries over artifact streams
+- **Search Assistant** — Natural language query answering over artifacts with citations and supporting evidence
+- **Evidence retrieval** — Semantic search, metadata filtering, and similar-artifact discovery across repositories
+- **Reasoning orchestration** — Multi-step retrieval and synthesis over the existing artifact intelligence store
 
 ## Tech stack
 
@@ -144,6 +158,7 @@ changeowl/
 │   ├── changeowl-web/               # Next.js frontend for artifact exploration
 │   ├── github-ingestion-service/    # GitHub PR/discussion ingestion
 │   ├── storage-service/             # Kafka consumer and persistence layer
+│   ├── artifact-gateway-service/     # Artifact query API and semantic retrieval layer
 │   └── semantic-enrichment-service/ # AI summarization and embeddings
 ├── infra/                           # Docker Compose local infrastructure
 ├── terraform/                       # Infrastructure as Code
@@ -157,6 +172,6 @@ changeowl/
 
 ## Current delivery focus
 
-**Phase 1** is production-ready for end-to-end ingestion, storage, semantic enrichment, and interactive exploration. Analysts can browse and filter enriched artifacts across multiple dimensions (risk, change type, surface area, impact), with semantic search for discovering related patterns.
+**Phase 1** is production-ready for end-to-end ingestion, storage, semantic enrichment, and interactive exploration.
 
-**Phase 2** (planned) will introduce autonomous agents for deeper reasoning over the artifact streams, enabling structured pattern recognition, architectural analysis, and evidence-backed technical insights.
+**The next delivery focus is the Search Assistant**: an agentic RAG capability that will let engineers ask natural-language questions and retrieve grounded answers from ChangeOwl’s artifact history, with filters, similarity search, and citations.

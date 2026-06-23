@@ -1,0 +1,36 @@
+server:
+  port: 8082
+logging:
+    level:
+        root: DEBUG
+        com.changeowl: DEBUG
+        org.springframework.web: DEBUG
+        org.springframework.web.servlet.DispatcherServlet: DEBUG
+spring:
+  application:
+    name: storage-service
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: false
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+semantic:
+  service:
+    url: ${SEMANTIC_SERVICE_API_URL}
+    api-key: ${SEMANTIC_SERVICE_API_KEY}
