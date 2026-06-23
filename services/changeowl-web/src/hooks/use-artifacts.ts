@@ -1,12 +1,12 @@
-import useSWRInfinite from "swr/infinite";
-import { Artifact } from "@/types/artifact";
+import useSWRInfinite from 'swr/infinite';
+import { Artifact } from '@/types/artifact';
 import {
   BehavioralImpact,
   ChangeSurface,
   ChangeType,
   Confidence,
   RiskLevel,
-} from "@/types/artifact-intelligence";
+} from '@/types/artifact-intelligence';
 
 export interface ArtifactFilters {
   q?: string | null;
@@ -24,9 +24,7 @@ const fetcher = async (url: string) => {
 
   if (!res.ok) {
     const info = await res.json();
-    const error = new Error(
-      info.error || "An error occurred while fetching data.",
-    );
+    const error = new Error(info.error || 'An error occurred while fetching data.');
     throw error;
   }
   return await res.json();
@@ -38,18 +36,21 @@ export function useArtifacts(filters: ArtifactFilters = {}) {
       if (previousPageData && !previousPageData.length) return null;
 
       const params = new URLSearchParams({
-        limit: "10",
+        limit: '10',
         offset: (index * 10).toString(),
       });
 
-      if (filters.q) params.append("q", filters.q);
-      if (filters.type) params.append("type", filters.type);
-      if (filters.risk) params.append("risk", filters.risk);
-      if (filters.surface) params.append("surface", filters.surface);
-      if (filters.confidence) params.append("confidence", filters.confidence);
-      if (filters.behavior) params.append("impact", filters.behavior);
-      if (filters.scope) params.append("radius", filters.scope);
-      if (filters.relatedTo) params.append("relatedTo", filters.relatedTo);
+      const q = filters.q?.trim();
+      if (q && q.length >= 3) {
+        params.append('q', q);
+      }
+      if (filters.type) params.append('type', filters.type);
+      if (filters.risk) params.append('risk', filters.risk);
+      if (filters.surface) params.append('surface', filters.surface);
+      if (filters.confidence) params.append('confidence', filters.confidence);
+      if (filters.behavior) params.append('impact', filters.behavior);
+      if (filters.scope) params.append('radius', filters.scope);
+      if (filters.relatedTo) params.append('relatedTo', filters.relatedTo);
 
       return `/api/artifacts?${params.toString()}`;
     },
@@ -58,19 +59,15 @@ export function useArtifacts(filters: ArtifactFilters = {}) {
       revalidateFirstPage: true,
       revalidateOnFocus: false,
       persistSize: true,
-    },
+    }
   );
 
   const artifacts = data ? data.flat() : [];
 
   const isLoadingMore: boolean =
-    (!data && !error) ||
-    (size > 0 && data && typeof data[size - 1] === "undefined") ||
-    false;
+    (!data && !error) || (size > 0 && data && typeof data[size - 1] === 'undefined') || false;
   const isReachingEnd: boolean =
-    data?.[0]?.length === 0 ||
-    (data && data[data.length - 1]?.length < 10) ||
-    false;
+    data?.[0]?.length === 0 || (data && data[data.length - 1]?.length < 10) || false;
 
   return {
     artifacts,

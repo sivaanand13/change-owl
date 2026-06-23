@@ -9,12 +9,14 @@
         <outputRelativeToContentRoot value="true" />
         <module name="changeowl-shared" />
         <module name="storage-service" />
+        <module name="artifact-gateway-service" />
       </profile>
       <profile name="Annotation profile for changeowl" enabled="true">
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
           <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.36/lombok-1.18.36.jar" />
         </processorPath>
         <module name="github-ingestion-service" />
@@ -23,6 +25,7 @@
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="artifact-gateway-service" options="-parameters" />
       <module name="changeowl-shared" options="" />
       <module name="github-ingestion-service" options="" />
     </option>

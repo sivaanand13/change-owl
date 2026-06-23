@@ -1,11 +1,4 @@
-import { db } from "@/lib/db";
-import {
-  trackedRepositories,
-  artifacts,
-  artifactIntelligence,
-} from "@/lib/db/schema";
-import { count } from "drizzle-orm";
-import logger from "@/lib/logger";
+import { fetchTickerData } from '@/lib/services/ticker';
 
 const clients: Set<ReadableStreamDefaultController> = new Set();
 const encoder = new TextEncoder();
@@ -30,28 +23,6 @@ async function broadcast(data: TickerData | undefined) {
   });
 }
 
-const fetchTickerData = async () => {
-  try {
-    const [repoCount, artifactCount, insightCount] = await Promise.all([
-      db.select({ value: count() }).from(trackedRepositories),
-      db.select({ value: count() }).from(artifacts),
-      db.select({ value: count() }).from(artifactIntelligence),
-    ]);
-
-    return {
-      repositories: repoCount[0].value,
-      artifacts: artifactCount[0].value,
-      insights: insightCount[0].value,
-    };
-  } catch (error) {
-    logger.error({
-      endpoint: "GET /ticker",
-      msg: "Ticker data fetch failed.",
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
-  }
-};
-
 setInterval(async () => {
   const data = await fetchTickerData();
   await broadcast(data);
@@ -67,9 +38,7 @@ export async function GET() {
 
       fetchTickerData().then((data) => {
         if (data) {
-          const initialPayload = encoder.encode(
-            `data: ${JSON.stringify(data)}\n\n`,
-          );
+          const initialPayload = encoder.encode(`data: ${JSON.stringify(data)}\n\n`);
           controller.enqueue(initialPayload);
         }
       });
@@ -83,9 +52,9 @@ export async function GET() {
 
   return new Response(stream, {
     headers: {
-      "Content-Type": "text/event-stream",
-      "Cache-Control": "no-cache, no-transform",
-      Connection: "keep-alive",
+      'Content-Type': 'text/event-stream',
+      'Cache-Control': 'no-cache, no-transform',
+      Connection: 'keep-alive',
     },
   });
 }

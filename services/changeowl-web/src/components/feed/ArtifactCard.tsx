@@ -1,40 +1,27 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Artifact } from "@/types/artifact";
-import { UI_CONFIG } from "@/lib/constants/ui-mappings";
-import { cn } from "@/lib/utils";
-import {
-  ExternalLink,
-  Clock,
-  Terminal,
-  Search,
-  Zap,
-  Target,
-  Info,
-  ArrowRight,
-} from "lucide-react";
-import Link from "next/link";
+import React from 'react';
+import { Artifact } from '@/types/artifact';
+import { UI_CONFIG } from '@/lib/constants/ui-mappings';
+import { cn } from '@/lib/utils';
+import { ExternalLink, Clock, Terminal, Search, Zap, Target, Info, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 interface Props {
   artifact: Artifact;
-  type?: "feed" | "similar";
+  type?: 'feed' | 'similar';
 }
 
 export function ArtifactCard({ artifact, type }: Props) {
   const intel = artifact.intelligence;
 
   const typeStyle = intel ? UI_CONFIG.change_type[intel.change_type] : null;
-  const surfaceStyle = intel
-    ? UI_CONFIG.change_surface[intel.change_surface]
-    : null;
-  const impactStyle = intel
-    ? UI_CONFIG.behavioral_impact[intel.behavioral_impact]
-    : null;
+  const surfaceStyle = intel ? UI_CONFIG.change_surface[intel.change_surface] : null;
+  const impactStyle = intel ? UI_CONFIG.behavioral_impact[intel.behavioral_impact] : null;
   const riskStyle = intel ? UI_CONFIG.risk_level[intel.risk_level] : null;
   const confStyle = intel ? UI_CONFIG.confidence[intel.confidence] : null;
 
-  if (type && type == "similar") {
+  if (type && type == 'similar') {
     return (
       <div className="group relative rounded-lg bg-white border border-slate-200 p-4 transition-all hover:shadow-md hover:border-brand-primary/20">
         <div className="flex items-center justify-between mb-2">
@@ -60,8 +47,8 @@ export function ArtifactCard({ artifact, type }: Props) {
               <div className="flex flex-wrap gap-1">
                 <span
                   className={cn(
-                    "text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider",
-                    riskStyle?.color,
+                    'text-[9px] font-bold px-1.5 py-0.5 rounded uppercase tracking-wider',
+                    riskStyle?.color
                   )}
                 >
                   {riskStyle?.label}
@@ -123,36 +110,20 @@ export function ArtifactCard({ artifact, type }: Props) {
         </div>
 
         {intel && (
-          <div
-            className={
-              "glow-border relative isolate text-card-body bg-brand-surface"
-            }
-          >
+          <div className={'glow-border relative isolate text-card-body bg-brand-surface'}>
             <div className="flex flex-wrap gap-1.5 mb-5">
               <div className="flex items-center gap-1 badge-base text-brand-primary">
                 <Zap size={10} fill="currentColor" /> AI INTEL
               </div>
-              <span className={cn("badge-base", typeStyle?.color)}>
-                {typeStyle?.label}
-              </span>
-              <span className={cn("badge-base", riskStyle?.color)}>
-                {riskStyle?.label}
-              </span>
-              <span className={cn("badge-base", impactStyle?.color)}>
-                {impactStyle?.label}
-              </span>
-              <span className={cn("badge-base", confStyle?.color)}>
-                {confStyle?.label}
-              </span>
+              <span className={cn('badge-base', typeStyle?.color)}>{typeStyle?.label}</span>
+              <span className={cn('badge-base', riskStyle?.color)}>{riskStyle?.label}</span>
+              <span className={cn('badge-base', impactStyle?.color)}>{impactStyle?.label}</span>
+              <span className={cn('badge-base', confStyle?.color)}>{confStyle?.label}</span>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-4">
-                <IntelField
-                  icon={<Target size={12} />}
-                  label="Intent"
-                  value={intel.intent}
-                />
+                <IntelField icon={<Target size={12} />} label="Intent" value={intel.intent} />
                 <IntelField
                   icon={<Info size={12} />}
                   label="Rationale"
@@ -163,11 +134,7 @@ export function ArtifactCard({ artifact, type }: Props) {
 
               <div className="space-y-4">
                 <IntelList label="Key Insights" items={intel.key_points} />
-                <IntelList
-                  label="Impact Radius"
-                  items={intel.impact_radius}
-                  horizontal
-                />
+                <IntelList label="Impact Radius" items={intel.impact_radius} horizontal />
               </div>
             </div>
           </div>
@@ -177,7 +144,7 @@ export function ArtifactCard({ artifact, type }: Props) {
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2 group/author">
               <div className="h-6 w-6 rounded-full bg-brand-secondary text-white flex items-center justify-center text-small font-bold shadow-sm">
-                {artifact.author?.[0]?.toUpperCase() ?? "?"}
+                {artifact.author?.[0]?.toUpperCase() ?? '?'}
               </div>
               <span className="text-card-body font-semibold text-text-muted group-hover/author:text-foreground transition-colors">
                 {artifact.author}
@@ -214,7 +181,7 @@ function IntelField({
   label: string;
   value: string;
   icon: React.ReactNode;
-  variant?: "italic";
+  variant?: 'italic';
 }) {
   return (
     <div className="space-y-1">
@@ -223,8 +190,8 @@ function IntelField({
       </span>
       <p
         className={cn(
-          "leading-relaxed text-foreground font-medium",
-          variant === "italic" && "text-text-muted italic",
+          'leading-relaxed text-foreground font-medium',
+          variant === 'italic' && 'text-text-muted italic'
         )}
       >
         {value}
@@ -246,15 +213,15 @@ function IntelList({
   return (
     <div className="space-y-2">
       <span className="text-label-muted">{label}</span>
-      <ul className={cn("flex gap-1.5", horizontal ? "flex-wrap" : "flex-col")}>
+      <ul className={cn('flex gap-1.5', horizontal ? 'flex-wrap' : 'flex-col')}>
         {items.map((item, i) => (
           <li
             key={i}
             className={cn(
-              "leading-tight flex items-start gap-2",
+              'leading-tight flex items-start gap-2',
               horizontal
-                ? "px-2 py-1 rounded bg-secondary/30 border border-border-subtle text-text-muted"
-                : "text-text-muted",
+                ? 'px-2 py-1 rounded bg-secondary/30 border border-border-subtle text-text-muted'
+                : 'text-text-muted'
             )}
           >
             {!horizontal && (
