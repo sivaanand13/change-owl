@@ -8,6 +8,9 @@ class Settings(BaseSettings):
     ARTIFACT_GATEWAY_URL: str
     
     class Config:
-            env_file=".env"
+            env_file=(
+                ".env.local",
+                #".env"
+            )
 
 settings = Settings()

@@ -1,31 +1,67 @@
-from langgraph.graph import StateGraph, START, END
-from langchain_core.messages import HumanMessage, SystemMessage
+from langgraph.graph import StateGraph, END
+from langgraph.prebuilt import ToolNode
+from langchain_core.messages import AIMessage
+from langchain_core.messages import HumanMessage
+from langgraph.checkpoint.memory import MemorySaver
 
 from app.agents.search_agent.state import SearchState
-from app.agents.search_agent.prompts import SEARCH_SYSTEM_PROMPT
-from app.llm.factory import get_reasoning_model
+from app.llm.factory import get_llm
+from app.tools.artifacts import artifact_tools
+from app.tools.repositories import repository_tools
+
+_memory_singleton = MemorySaver()
+
+tools = [
+    tool.tool
+    for tool in (artifact_tools + repository_tools)
+]
+
+llm = get_llm().bind_tools(tools)
+
+tool_node = ToolNode(tools)
 
 
-llm = get_reasoning_model()
+
+async def agent_node(state: SearchState):
+    messages = state.get("messages", [])
+
+    if not messages:
+        messages = [HumanMessage(content="")]
+
+    response = await llm.ainvoke(messages)
+
+    return {"messages": messages + [response]}
 
 
-def answer_question(state: SearchState):
 
-    response = llm.invoke([
-        SystemMessage(content=SEARCH_SYSTEM_PROMPT),
-        HumanMessage(content=state["question"])
-    ])
+AGENT = "agent"
+TOOLS = "tools"
 
-    return {
-        "answer": response.content
-    }
- 
+def should_call_tools(state: SearchState):
+    last = state["messages"][-1]
 
-builder = StateGraph(SearchState)
+    if isinstance(last, AIMessage) and last.tool_calls:
+        return TOOLS
 
-builder.add_node("answer", answer_question)
+    return END
 
-builder.add_edge(START, "answer")
-builder.add_edge("answer", END)
 
-graph = builder.compile()
+def build_graph():
+    graph = StateGraph(SearchState)
+
+    graph.add_node(AGENT, agent_node)
+    graph.add_node(TOOLS, tool_node)
+
+    graph.set_entry_point(AGENT)
+
+    graph.add_conditional_edges(
+        AGENT,
+        should_call_tools,
+        {
+            TOOLS: TOOLS,
+            END: END,
+        },
+    )
+
+    graph.add_edge(TOOLS, AGENT)
+    return graph.compile(checkpointer=_memory_singleton)

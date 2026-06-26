@@ -51,7 +51,9 @@ services:
       interval: 5s
       timeout: 5s
       retries: 5
+
   github-ingestion-service:
+    container_name: github-ingestion-service
     build:
       context: ..
       dockerfile: services/github-ingestion-service/Dockerfile
@@ -63,6 +65,7 @@ services:
       - kafka
 
   storage-service:
+    container_name: storage-service
     build:
       context: ..
       dockerfile: services/storage-service/Dockerfile
@@ -97,11 +100,11 @@ services:
       - postgres
       - kafka
 
-  changeown-web:
+  changeowl-web:
     container_name: changeowl-web
     build:
       context: ../services/changeowl-web
-      dockerfile: .//Dockerfile
+      dockerfile: ./Dockerfile
     env_file: ../services/changeowl-web/.env
     ports:
       - "3000:3000"

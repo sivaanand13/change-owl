@@ -2,6 +2,7 @@
 __pycache__
 .git
 .env
+.env.local
 *.egg-info
 *.npy
 *.json

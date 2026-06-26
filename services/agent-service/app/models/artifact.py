@@ -4,10 +4,10 @@ from app.models.artifact_intelligence import ArtifactIntelligence
 
 
 class Artifact(BaseModel):
-    id: str
+    id: int
 
     title: str
-    body: str
+    body: str | None = None
     url: str
     author: str
 
@@ -15,10 +15,10 @@ class Artifact(BaseModel):
     state: str | None = None
 
     repoName: str
-    repoId: str
+    repoId: int
 
     techName: str
-    techId: str
+    techId: int
 
     intelligence: ArtifactIntelligence | None = None
 

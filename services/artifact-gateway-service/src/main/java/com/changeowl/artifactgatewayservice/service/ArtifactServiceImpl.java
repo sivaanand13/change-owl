@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,6 +46,7 @@ public class ArtifactServiceImpl implements ArtifactService{
                     .similarityScore(p.getSimilarityScore())
                     .build();
         } catch (JsonProcessingException e) {
+            log.info("Failed to parse intelligence JSON for artifact with id: {}", p.getId(), e);
             throw new RuntimeException(e);
         }
     }
@@ -57,6 +59,7 @@ public class ArtifactServiceImpl implements ArtifactService{
         String embedding = null;
 
         List<ArtifactProjection> results;
+
         if (query.getRelatedTo() != null) {
             embedding = artifactRepository.findEmbeddingByArtifactId(query.getRelatedTo())
                     .orElseThrow(() -> new RuntimeException("Related artifact not found with id: " + query.getRelatedTo()));
@@ -82,6 +85,12 @@ public class ArtifactServiceImpl implements ArtifactService{
             );
         }
 
+        long totalCount = 0;
+
+        if (!results.isEmpty()) {
+            totalCount = results.getFirst().getTotal();
+        }
+
         List<ArtifactResponse> artifacts = results.stream()
                 .map(this::toResponse)
                 .toList();
@@ -90,6 +99,7 @@ public class ArtifactServiceImpl implements ArtifactService{
                 .artifacts(artifacts)
                 .limit(limit)
                 .offset(offset)
+                .total(totalCount)
                 .build();
 
     }
