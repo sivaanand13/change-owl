@@ -1,11 +1,16 @@
 server:
   port: 8082
+  tomcat:
+    accesslog:
+      directory: /dev/stdout
+      enabled: true
+      pattern: "%m %U %s %Dms MDC:[%I] Session:[%{X-Session-ID}i]"
 logging:
   level:
-    root: DEBUG
-    com.changeowl: DEBUG
-    org.springframework.web: DEBUG
-    org.springframework.web.servlet.DispatcherServlet: DEBUG
+    root: INFO
+    com.changeowl: INFO
+    org.springframework.web: INFO
+    org.springframework.web.servlet.DispatcherServlet: INFO
 spring:
   application:
     name: storage-service
@@ -30,6 +35,9 @@ management:
   endpoint:
     health:
       show-details: always
+changeowl:
+  agent-service:
+    url: http://localhost:8052
 semantic:
   service:
     url: http://localhost:8050
