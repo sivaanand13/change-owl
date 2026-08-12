@@ -112,6 +112,16 @@ services:
       - semantic-enrichment-service
       - artifact-gateway-service
 
+  agent-service:
+    container_name: agent-service
+    build:
+      context: ../services/agent-service
+      dockerfile: ./Dockerfile
+    volumes:
+      - ~/.cache/huggingface:/root/.cache/huggingface
+    env_file: ../services/agent-service/.env
+    ports:
+      - "8052:8052"
 
 volumes:
   postgres_data:

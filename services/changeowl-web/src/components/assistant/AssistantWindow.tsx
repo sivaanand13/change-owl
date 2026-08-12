@@ -128,7 +128,7 @@ export function AssistantWindow({ onClose }: Props) {
                   <span>{msg.statusMessage}</span>
                 </div>
               ) : (
-                <MessageRenderer content={msg.content} />
+                <MessageRenderer className="max-w-full overflow-hidden" content={msg.content} />
               )}
             </div>
           </div>
