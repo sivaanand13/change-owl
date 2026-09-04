@@ -45,6 +45,12 @@ ChangeOwl is a multi-module, event-driven platform for turning engineering activ
 	- Sends failed messages to the DLQ topic `technical-artifacts-canonical_dlq`.
 	- Exposes an `/embed` endpoint for real-time semantic search queries from the frontend.
 
+- **`agent-service`**
+	- Python-based agent service implementing the Search Assistant (agentic RAG).
+	- Implements a LangGraph-based agent that performs retrieval-augmented generation using artifact tools, prompts, and state management.
+	- Integrates with `artifact-gateway-service` for retrieval and `changeowl-web` for conversational UI and assistant flows.
+	- Code lives under `services/agent-service` and includes `app/agents/search_agent` with `graph.py`, `prompts.py`, and `state.py`.
+
 ### Infrastructure
 
 - **Kafka** in KRaft mode for event streaming
@@ -124,16 +130,19 @@ What is already implemented:
 - **AI-enhanced artifact intelligence display (risk, confidence, impact analysis)**
 - **Real-time vector similarity matching for related artifacts**
 
-### Phase 2: Search Assistant 🚀 **In Progress**
+### Phase 2: Search Assistant 🚀 **Implemented (agent-service)**
 
-The next delivery focus is the **Search Assistant**, an agentic RAG layer for engineering intelligence.
+The Search Assistant has been developed and delivered as the `agent-service` — a Python-based, LangGraph-backed agentic RAG integrated into the platform.
 
-Its purpose is to turn ChangeOwl into an evidence-backed search and reasoning system that answers natural language questions using retrieved artifacts, filters, and similarity search.
+What it does now:
+- Performs retrieval-augmented generation over `artifact` data with citation-backed answers.
+- Uses the `artifact-gateway-service` for retrieval and the semantic-enrichment embeddings for relevance ranking.
+- Exposes conversational and programmatic interfaces consumed by `changeowl-web` for assistant UI flows.
+- Implements artifact tools, prompt templates, and lightweight agent state for multi-step reasoning.
 
-**Roadmap:**
-- **Search Assistant** — Natural language query answering over artifacts with citations and supporting evidence
-- **Evidence retrieval** — Semantic search, metadata filtering, and similar-artifact discovery across repositories
-- **Reasoning orchestration** — Multi-step retrieval and synthesis over the existing artifact intelligence store
+Next steps / roadmap:
+- Expand evidence-ranking and citation quality metrics
+- Develop and mature agent tools to expose richer capabilities (artifact tools, prompt templates, orchestration)
 
 ## Tech stack
 
