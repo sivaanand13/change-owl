@@ -1,8 +1,7 @@
 package com.changeowl.artifactgatewayservice.repository;
 
-import com.changeowl.artifactgatewayservice.dto.response.ArtifactResponse;
 import com.changeowl.artifactgatewayservice.entity.ArtifactEntity;
-import com.changeowl.artifactgatewayservice.entity.ArtifactPayloadEntity;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -43,8 +42,8 @@ public interface ArtifactRepository extends JpaRepository<ArtifactEntity, Long> 
             ai.ai_summary AS intelligence,
 
             1 - (ai.embedding <=> CAST(:embedding AS vector))
-                AS similarityScore
-
+                AS similarityScore,
+            COUNT(*) OVER() AS total
         FROM artifacts a
         JOIN artifact_intelligence ai
             ON ai.artifact_id = a.id
@@ -88,7 +87,8 @@ public interface ArtifactRepository extends JpaRepository<ArtifactEntity, Long> 
                 WHEN :embedding IS NOT NULL THEN
                     1 - (ai.embedding <=> CAST(:embedding AS vector))
                 ELSE NULL
-            END AS similarityScore
+            END AS similarityScore,
+            COUNT(*) OVER() AS total
     
         FROM artifacts a
         INNER JOIN artifact_intelligence ai
@@ -142,7 +142,8 @@ public interface ArtifactRepository extends JpaRepository<ArtifactEntity, Long> 
 
             ai.ai_summary AS intelligence,
 
-            NULL AS similarityScore
+            NULL AS similarityScore,
+            COUNT(*) OVER() AS total
 
         FROM artifacts a
         JOIN artifact_intelligence ai

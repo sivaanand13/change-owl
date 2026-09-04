@@ -7,6 +7,7 @@ import { NextIntlClientProvider } from 'next-intl';
 import StatusTicker from '@/components/ticker/StatusTicker';
 import { NuqsAdapter } from 'nuqs/adapters/next/app';
 import { Suspense } from 'react';
+import { SearchAssistant } from '@/components/assistant/SearchAssistant';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -37,6 +38,7 @@ export default function RootLayout({
             <Header />
             <main className="grow">{children}</main>
           </NextIntlClientProvider>
+          <SearchAssistant />
           <Footer />
         </NuqsAdapter>
       </body>

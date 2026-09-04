@@ -33,7 +33,7 @@ public class TrackedRepoEntity {
     @Column(name = "is_active")
     private Boolean isActive = true;
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "tech_id")
     private TechnologyEntity technology;
 

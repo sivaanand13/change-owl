@@ -5,5 +5,3 @@ docs/research/*
 .idea
 
 .DS_Store
-
-services/agent-service

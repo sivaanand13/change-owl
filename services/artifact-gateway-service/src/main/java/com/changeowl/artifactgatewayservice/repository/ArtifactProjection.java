@@ -26,4 +26,6 @@ public interface ArtifactProjection {
     String getIntelligence();
 
     Double getSimilarityScore();
+
+    Long getTotal();
 }
